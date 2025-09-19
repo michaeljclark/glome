@@ -20,7 +20,7 @@
 #include FT_OUTLINE_H
 
 #include "nanovg.h"
-#define NANOVG_GLES3_IMPLEMENTATION
+#define NANOVG_GL3_IMPLEMENTATION
 #include "nanovg_gl.h"
 #include "nanovg_gl_utils.h"
 
@@ -28,12 +28,10 @@
 #include "stb_image_write.h"
 
 #include "linmath.h"
-#include "gl2_util.h"
 
-#include "lv_model.h"
-#include "lv_ops_nanovg.h"
-#include "lv_ops_buffer.h"
-#include "lv_ops_xform.h"
+#include "lv_color.h"
+#include "lv_opengl.h"
+#include "lv_vg.h"
 
 typedef struct glome_app glome_app;
 struct glome_app

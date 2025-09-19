@@ -1,4 +1,24 @@
+/*
+ * Copyright (c) 2023-2025 Michael Clark <michaeljclark@mac.com>
+ *
+ * Permission to use, copy, modify, and distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
 #pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct lv_nanovg_vg_context lv_nanovg_vg_context;
 struct lv_nanovg_vg_context
@@ -15,7 +35,7 @@ static void lv_nanovg_vg_init(lv_context* ctx, void *arg)
 
     lv_debug("trace: lv_nanovg_vg_init\n");
     lv_nanovg_vg_context *priv = lv_type_new(lv_nanovg_vg_context);
-    priv->vg = nvgCreateGLES3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
+    priv->vg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
     if (!priv->vg) {
         lv_panic("lv_context_init: error initializing nanovg\n");
     }
@@ -28,7 +48,7 @@ static void lv_nanovg_vg_destroy(lv_context* ctx)
 {
     lv_debug("trace: lv_nanovg_vg_destroy\n");
     lv_nanovg_vg_context *priv = (lv_nanovg_vg_context*)ctx->priv;
-    nvgDeleteGLES3(priv->vg);
+    nvgDeleteGL3(priv->vg);
     free(ctx->priv);
 }
 
@@ -310,7 +330,7 @@ static void lv_nanovg_vg_2d_text_blur(lv_context * ctx, float blur)
     // todo
 }
 
-static void lv_nanovg_vg_2d_text_align(lv_context * ctx, lv_align align)
+static void lv_nanovg_vg_2d_text_align(lv_context * ctx, int align)
 {
     lv_debug("trace: lv_nanovg_vg_2d_text_align: %d\n", align);
     // todo
@@ -320,6 +340,8 @@ static vec2f lv_nanovg_vg_2d_text_bounds(lv_context * ctx, const char *text)
 {
     lv_debug("trace: lv_nanovg_vg_2d_text_bounds: %s\n", text);
     // todo
+    vec2f r = { 0, 0 };
+    return r;
 }
 
 static void lv_nanovg_vg_2d_text_draw(lv_context * ctx, vec2f v0, const char *text)
@@ -447,3 +469,7 @@ static const lv_vg_ops lv_nanovg_vg_ops =
     lv_nanovg_vg_3d_quadratic_to,
     lv_nanovg_vg_3d_bezier_to,
 };
+
+#ifdef __cplusplus
+}
+#endif

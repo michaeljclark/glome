@@ -1,4 +1,24 @@
+/*
+ * Copyright (c) 2023-2025 Michael Clark <michaeljclark@mac.com>
+ *
+ * Permission to use, copy, modify, and distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
 #pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 enum { lv_xform_max_depth = 32 };
 
@@ -333,10 +353,14 @@ static void lv_xform_vg_2d_rect(lv_context* ctx, vec2f p0, vec2f s0)
     lv_debug("trace: lv_xform_vg_2d_rect: %f, %f, %f, %f\n",
         p0.x, p0.y, s0.x, s0.y);
     lv_xform_vg_context *priv = (lv_xform_vg_context*)ctx->priv;
-    lv_xform_vg_2d_move_to(ctx, (vec2f) { p0.x, p0.y } );
-    lv_xform_vg_2d_line_to(ctx, (vec2f) { p0.x, p0.y + s0.y } );
-    lv_xform_vg_2d_line_to(ctx, (vec2f) { p0.x + s0.x, p0.y + s0.y } );
-    lv_xform_vg_2d_line_to(ctx, (vec2f) { p0.x + s0.x, p0.y } );
+    vec2f a = { p0.x, p0.y };
+    vec2f b = { p0.x, p0.y + s0.y };
+    vec2f c = { p0.x + s0.x, p0.y + s0.y };
+    vec2f d = { p0.x + s0.x, p0.y };
+    lv_xform_vg_2d_move_to(ctx, a);
+    lv_xform_vg_2d_line_to(ctx, b);
+    lv_xform_vg_2d_line_to(ctx, c);
+    lv_xform_vg_2d_line_to(ctx, d);
     lv_xform_vg_close_path(ctx);
 }
 
@@ -349,23 +373,32 @@ static void lv_xform_vg_2d_rounded_rect(lv_context* ctx, vec2f p0, vec2f s0, flo
     const float k = 4.f/3.f*(sqrtf(2.f)-1.f), j = 1.f - k;
     vec2f r = { lv_min(r0, fabsf(s0.x) * 0.5f) * lv_sign(s0.x),
                  lv_min(r0, fabsf(s0.y) * 0.5f) * lv_sign(s0.y) };
-    lv_xform_vg_2d_move_to  (ctx, (vec2f) { p0.x, p0.y + r.y });
-    lv_xform_vg_2d_line_to  (ctx, (vec2f) { p0.x, p0.y + s0.y - r.y });
-    lv_xform_vg_2d_bezier_to(ctx, (vec2f) { p0.x, p0.y + s0.y - r.y * j },
-                                  (vec2f) { p0.x + r.x * j, p0.y + s0.y },
-                                  (vec2f) { p0.x + r.x, p0.y + s0.y });
-    lv_xform_vg_2d_line_to  (ctx, (vec2f) { p0.x + s0.x - r.x, p0.y + s0.y });
-    lv_xform_vg_2d_bezier_to(ctx, (vec2f) { p0.x + s0.x - r.x * j, p0.y + s0.y },
-                                  (vec2f) { p0.x + s0.x, p0.y + s0.y - r.y * j },
-                                  (vec2f) { p0.x + s0.x, p0.y + s0.y - r.y });
-    lv_xform_vg_2d_line_to  (ctx, (vec2f) { p0.x + s0.x, p0.y + r.y });
-    lv_xform_vg_2d_bezier_to(ctx, (vec2f) { p0.x + s0.x, p0.y + r.y * j },
-                                  (vec2f) { p0.x + s0.x - r.x * j, p0.y },
-                                  (vec2f) { p0.x + s0.x - r.x, p0.y });
-    lv_xform_vg_2d_line_to  (ctx, (vec2f) { p0.x + r.x, p0.y });
-    lv_xform_vg_2d_bezier_to(ctx, (vec2f) { p0.x + r.x * j, p0.y, },
-                                  (vec2f) { p0.x, p0.y + r.y * j },
-                                  (vec2f) { p0.x, p0.y + r.y });
+    vec2f a = { p0.x, p0.y + r.y };
+    vec2f b = { p0.x, p0.y + s0.y - r.y };
+    vec2f c = { p0.x, p0.y + s0.y - r.y * j };
+    vec2f d = { p0.x + r.x * j, p0.y + s0.y };
+    vec2f e = { p0.x + r.x, p0.y + s0.y };
+    vec2f f = { p0.x + s0.x - r.x, p0.y + s0.y };
+    vec2f g = { p0.x + s0.x - r.x * j, p0.y + s0.y };
+    vec2f h = { p0.x + s0.x, p0.y + s0.y - r.y * j };
+    vec2f i = { p0.x + s0.x, p0.y + s0.y - r.y };
+    vec2f l = { p0.x + s0.x, p0.y + r.y };
+    vec2f m = { p0.x + s0.x, p0.y + r.y * j };
+    vec2f n = { p0.x + s0.x - r.x * j, p0.y };
+    vec2f o = { p0.x + s0.x - r.x, p0.y };
+    vec2f p = { p0.x + r.x, p0.y };
+    vec2f q = { p0.x + r.x * j, p0.y, };
+    vec2f s = { p0.x, p0.y + r.y * j };
+    vec2f t = { p0.x, p0.y + r.y };
+    lv_xform_vg_2d_move_to  (ctx, a);
+    lv_xform_vg_2d_line_to  (ctx, b);
+    lv_xform_vg_2d_bezier_to(ctx, c, d, e);
+    lv_xform_vg_2d_line_to  (ctx, f);
+    lv_xform_vg_2d_bezier_to(ctx, g, h, i);
+    lv_xform_vg_2d_line_to  (ctx, l);
+    lv_xform_vg_2d_bezier_to(ctx, m, n, o);
+    lv_xform_vg_2d_line_to  (ctx, p);
+    lv_xform_vg_2d_bezier_to(ctx, q, s, t);
     lv_xform_vg_close_path(ctx);
 }
 
@@ -376,19 +409,24 @@ static void lv_xform_vg_2d_ellipse(lv_context * ctx, vec2f c0, vec2f r0)
     lv_xform_vg_context *priv = (lv_xform_vg_context*)ctx->priv;
     /* length proportional to radius of a cubic bezier handle for 90deg arcs */
     const float k = 4.f/3.f*(sqrtf(2.f)-1.f), j = 1.f - k;
-    lv_xform_vg_2d_move_to  (ctx, (vec2f) { c0.x-r0.x, c0.y });
-    lv_xform_vg_2d_bezier_to(ctx, (vec2f) { c0.x-r0.x, c0.y+r0.y * k },
-                                  (vec2f) { c0.x-r0.x * k, c0.y+r0.y },
-                                  (vec2f) { c0.x, c0.y+r0.y });
-    lv_xform_vg_2d_bezier_to(ctx, (vec2f) { c0.x+r0.x * k, c0.y+r0.y },
-                                  (vec2f) { c0.x+r0.x, c0.y+r0.y * k },
-                                  (vec2f) { c0.x+r0.x, c0.y });
-    lv_xform_vg_2d_bezier_to(ctx, (vec2f) { c0.x+r0.x, c0.y-r0.y * k },
-                                  (vec2f) { c0.x+r0.x * k, c0.y-r0.y },
-                                  (vec2f) { c0.x, c0.y-r0.y });
-    lv_xform_vg_2d_bezier_to(ctx, (vec2f) { c0.x-r0.x * k, c0.y-r0.y },
-                                  (vec2f) { c0.x-r0.x, c0.y-r0.y * k },
-                                  (vec2f) { c0.x-r0.x, c0.y });
+    vec2f a = { c0.x-r0.x, c0.y };
+    vec2f b = { c0.x-r0.x, c0.y+r0.y * k };
+    vec2f c = { c0.x-r0.x * k, c0.y+r0.y };
+    vec2f d = { c0.x, c0.y+r0.y };
+    vec2f e = { c0.x+r0.x * k, c0.y+r0.y };
+    vec2f f = { c0.x+r0.x, c0.y+r0.y * k };
+    vec2f g = { c0.x+r0.x, c0.y };
+    vec2f h = { c0.x+r0.x, c0.y-r0.y * k };
+    vec2f i = { c0.x+r0.x * k, c0.y-r0.y };
+    vec2f l = { c0.x, c0.y-r0.y };
+    vec2f m = { c0.x-r0.x * k, c0.y-r0.y };
+    vec2f n = { c0.x-r0.x, c0.y-r0.y * k };
+    vec2f o = { c0.x-r0.x, c0.y };
+    lv_xform_vg_2d_move_to  (ctx, a);
+    lv_xform_vg_2d_bezier_to(ctx, b, c, d);
+    lv_xform_vg_2d_bezier_to(ctx, e, f, g);
+    lv_xform_vg_2d_bezier_to(ctx, h, i, l);
+    lv_xform_vg_2d_bezier_to(ctx, m, n, o);
     lv_xform_vg_close_path(ctx);
 }
 
@@ -430,7 +468,7 @@ static void lv_xform_vg_2d_text_blur(lv_context * ctx, float blur)
     // todo
 }
 
-static void lv_xform_vg_2d_text_align(lv_context * ctx, lv_align align)
+static void lv_xform_vg_2d_text_align(lv_context * ctx, int align)
 {
     lv_debug("trace: lv_xform_vg_2d_text_align: %d\n", align);
     // todo
@@ -440,6 +478,8 @@ static vec2f lv_xform_vg_2d_text_bounds(lv_context * ctx, const char *text)
 {
     lv_debug("trace: lv_xform_vg_2d_text_bounds: %s\n", text);
     // todo
+    vec2f r = { 0, 0 };
+    return r;
 }
 
 static void lv_xform_vg_2d_text_draw(lv_context * ctx, vec2f v0, const char *text)
@@ -591,3 +631,7 @@ static const lv_vg_ops lv_xform_vg_ops =
     lv_xform_vg_3d_quadratic_to,
     lv_xform_vg_3d_bezier_to,
 };
+
+#ifdef __cplusplus
+}
+#endif

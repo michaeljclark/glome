@@ -16,6 +16,10 @@
 
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * vertex buffer, index buffer and shader loading interface
  */
@@ -104,7 +108,7 @@ static void index_buffer_init(index_buffer *ib);
 static void index_buffer_destroy(index_buffer *ib);
 static void* index_buffer_data(index_buffer *ib);
 static size_t index_buffer_size(index_buffer *ib);
-static uint index_buffer_count(index_buffer *ib);
+static size_t index_buffer_count(index_buffer *ib);
 static void index_buffer_add(index_buffer *ib,
     const uint *data, uint count, uint addend);
 static void index_buffer_add_primitves(index_buffer *ib,
@@ -149,7 +153,7 @@ static size_t array_buffer_size(array_buffer *sb)
 
 static void array_buffer_resize(array_buffer *sb, size_t required)
 {
-    uint capacity = sb->capacity;
+    size_t capacity = sb->capacity;
     while (required > capacity) capacity <<= 1;
     if (capacity > sb->capacity) {
         sb->data = (char*)realloc(sb->data, sb->stride * capacity);
@@ -160,7 +164,7 @@ static void array_buffer_resize(array_buffer *sb, size_t required)
 
 static uint array_buffer_add(array_buffer *sb, void *data)
 {
-    uint idx = sb->count;
+    uint idx = (uint)sb->count;
     array_buffer_resize(sb, idx + 1);
     memcpy(sb->data + (idx * sb->stride), data, sb->stride);
     return idx;
@@ -225,7 +229,7 @@ static void index_buffer_destroy(index_buffer *ib)
     array_buffer_destroy(ib);
 }
 
-static uint index_buffer_count(index_buffer *ib)
+static size_t index_buffer_count(index_buffer *ib)
 {
     return array_buffer_count(ib);
 }
@@ -362,11 +366,12 @@ static buffer load_file(const char *filename)
     }
     buf = (char*)malloc(statbuf.st_size);
     if ((nread = fread(buf, 1, statbuf.st_size, f)) != statbuf.st_size) {
-        printf("gears_create_shader_from_file: fread: %s: expected %zu got %zu\n",
+        printf("gears_create_shader_from_file: fread: %s: expected %lu got %zu\n",
             filename, statbuf.st_size, nread);
         exit(1);
     }
-    return (buffer){buf, (size_t)statbuf.st_size};
+    buffer b = {buf, (size_t)statbuf.st_size};
+    return b;
 }
 
 /*
@@ -423,7 +428,7 @@ static GLuint compile_shader(GLenum type, const char *filename)
     int is_spirv;
 
     buf = load_file(filename);
-    length = buf.length;
+    length = (GLint)buf.length;
     if (!length) {
         printf("failed to load shader: %s\n", filename);
         exit(1);
@@ -626,3 +631,7 @@ static void uniform_matrix_4fv(const char *uniform, const GLfloat *mat)
         glUniformMatrix4fv(val, 1, GL_FALSE, mat);
     }
 }
+
+#ifdef __cplusplus
+}
+#endif

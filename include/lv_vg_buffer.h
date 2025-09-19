@@ -1,4 +1,29 @@
+/*
+ * Copyright (c) 2023-2025 Michael Clark <michaeljclark@mac.com>
+ *
+ * Permission to use, copy, modify, and distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
 #pragma once
+
+#ifdef _WIN32
+#include <malloc.h>
+#define alloca _alloca
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct lv_buffer_vg_context lv_buffer_vg_context;
 struct lv_buffer_vg_context
@@ -95,7 +120,7 @@ static void lv_buffer_vg_path_winding(lv_context * ctx, int dir)
 {
     lv_debug("trace: lv_buffer_vg_path_winding: %d\n", dir);
     lv_buffer_vg_context *priv = (lv_buffer_vg_context*)ctx->priv;
-    uint cmd[] = { lv_cmd_path_winding, dir };
+    uint cmd[] = { lv_cmd_path_winding, (uint)dir };
     array_buffer_append(&priv->buf, cmd);
 }
 
@@ -113,7 +138,7 @@ static void lv_buffer_vg_line_cap(lv_context * ctx, int cap)
 {
     lv_debug("trace: lv_buffer_vg_line_cap: %d\n", cap);
     lv_buffer_vg_context *priv = (lv_buffer_vg_context*)ctx->priv;
-    uint cmd[] = { lv_cmd_line_cap, cap };
+    uint cmd[] = { lv_cmd_line_cap, (uint)cap };
     array_buffer_append(&priv->buf, cmd);
 }
 
@@ -121,7 +146,7 @@ static void lv_buffer_vg_line_join(lv_context * ctx, int join)
 {
     lv_debug("trace: lv_buffer_vg_line_join: %d\n", join);
     lv_buffer_vg_context *priv = (lv_buffer_vg_context*)ctx->priv;
-    uint cmd[] = { lv_cmd_line_join, join };
+    uint cmd[] = { lv_cmd_line_join, (uint)join };
     array_buffer_append(&priv->buf, cmd);
 }
 
@@ -298,7 +323,7 @@ static void lv_buffer_vg_2d_arc(lv_context * ctx, vec2f c0, float r, vec2f a0, i
     lv_buffer_vg_context *priv = (lv_buffer_vg_context*)ctx->priv;
     uint cmd[] = { lv_cmd_2d_arc };
     float param[] = { c0.x, c0.y, r, a0.x, a0.y };
-    uint parami[] = { dir };
+    uint parami[] = { (uint)dir };
     array_buffer_append(&priv->buf, cmd);
     array_buffer_append(&priv->buf, param);
     array_buffer_append(&priv->buf, parami);
@@ -352,7 +377,7 @@ static void lv_buffer_vg_2d_text_font(lv_context * ctx, const char *font)
 {
     lv_debug("trace: lv_buffer_vg_2d_text_font: %s\n", font);
     lv_buffer_vg_context *priv = (lv_buffer_vg_context*)ctx->priv;
-    uint len = strlen(font);
+    uint len = (uint)strlen(font);
     uint cmd[] = { lv_cmd_2d_text_font, len };
     array_buffer_append(&priv->buf, cmd);
     array_buffer_append_impl(&priv->buf, (void*)font, len);
@@ -398,7 +423,7 @@ static void lv_buffer_vg_2d_text_blur(lv_context * ctx, float blur)
     array_buffer_append(&priv->buf, param);
 }
 
-static void lv_buffer_vg_2d_text_align(lv_context * ctx, lv_align align)
+static void lv_buffer_vg_2d_text_align(lv_context * ctx, int align)
 {
     lv_debug("trace: lv_buffer_vg_2d_text_align: %d\n", align);
     lv_buffer_vg_context *priv = (lv_buffer_vg_context*)ctx->priv;
@@ -409,13 +434,16 @@ static void lv_buffer_vg_2d_text_align(lv_context * ctx, lv_align align)
 static vec2f lv_buffer_vg_2d_text_bounds(lv_context * ctx, const char *text)
 {
     lv_debug("trace: lv_buffer_vg_2d_text_bounds: %s\n", text);
+    // todo
+    vec2f r = { 0, 0 };
+    return r;
 }
 
 static void lv_buffer_vg_2d_text_draw(lv_context * ctx, vec2f v0, const char *text)
 {
     lv_debug("trace: lv_buffer_vg_2d_text_draw: %f %f %s\n", v0.x, v0.y, text);
     lv_buffer_vg_context *priv = (lv_buffer_vg_context*)ctx->priv;
-    uint len = strlen(text);
+    uint len = (uint)strlen(text);
     uint cmd[] = { lv_cmd_2d_text_draw };
     float param[] = { v0.x, v0.y };
     uint slen[] = { len };
@@ -679,7 +707,7 @@ static void lv_buffer_vg_playback(lv_context * src, lv_context * dst)
             lv_vg_stroke(dst);
             break;
         case lv_cmd_2d_translate:
-            v0 = (vec2f){ f[i+0], f[i+1] };
+            v0.x = f[i+0]; v0.y = f[i+1];
             i += 2;
             lv_vg_2d_translate(dst, v0);
             break;
@@ -699,76 +727,76 @@ static void lv_buffer_vg_playback(lv_context * src, lv_context * dst)
             lv_vg_2d_skew_y(dst, f0);
             break;
         case lv_cmd_2d_scale:
-            v0 = (vec2f){ f[i+0], f[i+1] };
+            v0.x = f[i+0]; v0.y = f[i+1];
             i += 2;
             lv_vg_2d_scale(dst, v0);
             break;
         case lv_cmd_2d_move_to:
-            v0 = (vec2f){ f[i+0], f[i+1] };
+            v0.x = f[i+0]; v0.y = f[i+1];
             i += 2;
             lv_vg_2d_move_to(dst, v0);
             break;
         case lv_cmd_2d_line_to:
-            v0 = (vec2f){ f[i+0], f[i+1] };
+            v0.x = f[i+0]; v0.y = f[i+1];
             i += 2;
             lv_vg_2d_line_to(dst, v0);
             break;
         case lv_cmd_2d_quadratic_to:
-            v0 = (vec2f){ f[i+0], f[i+1] };
-            v1 = (vec2f){ f[i+2], f[i+3] };
+            v0.x = f[i+0]; v0.y = f[i+1];
+            v1.x = f[i+2]; v1.y = f[i+3];
             i += 4;
             lv_vg_2d_quadratic_to(dst, v0, v1);
             break;
         case lv_cmd_2d_bezier_to:
-            v0 = (vec2f){ f[i+0], f[i+1] };
-            v1 = (vec2f){ f[i+2], f[i+3] };
-            v2 = (vec2f){ f[i+4], f[i+5] };
+            v0.x = f[i+0]; v0.y = f[i+1];
+            v1.x = f[i+2]; v1.y = f[i+3];
+            v2.x = f[i+4]; v2.y = f[i+5];
             i += 6;
             lv_vg_2d_bezier_to(dst, v0, v1, v2);
             break;
         case lv_cmd_2d_arc_to:
-            v0 = (vec2f){ f[i+0], f[i+1] };
-            v1 = (vec2f){ f[i+2], f[i+3] };
+            v0.x = f[i+0]; v0.y = f[i+1];
+            v1.x = f[i+2]; v1.y = f[i+3];
             f0 = f[i+4];
             i += 5;
             lv_vg_2d_arc_to(dst, v0, v1, f0);
             break;
         case lv_cmd_2d_arc:
-            v0 = (vec2f){ f[i+0], f[i+1] };
+            v0.x = f[i+0]; v0.y = f[i+1];
             f0 = f[i+2];
-            v1 = (vec2f){ f[i+3], f[i+4] };
+            v1.x = f[i+3]; v1.y = f[i+4];
             p0 = p[i+5];
             i += 6;
             lv_vg_2d_arc(dst, v0, f0, v1, p0);
             break;
         case lv_cmd_2d_rect:
-            v0 = (vec2f){ f[i+0], f[i+1] };
-            v1 = (vec2f){ f[i+2], f[i+3] };
+            v0.x = f[i+0]; v0.y = f[i+1];
+            v1.x = f[i+2]; v1.y = f[i+3];
             i += 4;
             lv_vg_2d_rect(dst, v0, v1);
             break;
         case lv_cmd_2d_rounded_rect:
-            v0 = (vec2f){ f[i+0], f[i+1] };
-            v1 = (vec2f){ f[i+2], f[i+3] };
+            v0.x = f[i+0]; v0.y = f[i+1];
+            v1.x = f[i+2]; v1.y = f[i+3];
             f0 = f[i+4];
             i += 5;
             lv_vg_2d_rounded_rect(dst, v0, v1, f0);
             break;
         case lv_cmd_2d_ellipse:
-            v0 = (vec2f){ f[i+0], f[i+1] };
-            v1 = (vec2f){ f[i+2], f[i+3] };
+            v0.x = f[i+0]; v0.y = f[i+1];
+            v1.x = f[i+2]; v1.y = f[i+3];
             i += 4;
             lv_vg_2d_ellipse(dst, v0, v1);
             break;
         case lv_cmd_2d_circle:
-            v0 = (vec2f){ f[i+0], f[i+1] };
+            v0.x = f[i+0]; v0.y = f[i+1];
             f0 = f[i+2];
             i += 3;
             lv_vg_2d_circle(dst, v0, f0);
             break;
         case lv_cmd_2d_text_font:
             p0 = p[i+0];
-            str = alloca(p0+1);
+            str = (char*)alloca(p0+1);
             memcpy(str, (const char*)&p[i+1], p0);
             str[p0] = '\0';
             lv_vg_2d_text_font(dst, str);
@@ -803,9 +831,9 @@ static void lv_buffer_vg_playback(lv_context * src, lv_context * dst)
             /* nop */
             break;
         case lv_cmd_2d_text_draw:
-            v0 = (vec2f){ f[i+0], f[i+1] };
+            v0.x = f[i+0]; v0.y = f[i+1];
             p0 = p[i+2];
-            str = alloca(p0+1);
+            str = (char*)alloca(p0+1);
             memcpy(str, (const char*)&p[i+3], p0);
             str[p0] = '\0';
             lv_vg_2d_text_draw(dst, v0, str);
@@ -817,44 +845,48 @@ static void lv_buffer_vg_playback(lv_context * src, lv_context * dst)
             lv_vg_3d_transform(dst, m0);
             break;
         case lv_cmd_3d_translate:
-            w0 = (vec3f){ f[i+0], f[i+1], f[i+2] };
+            w0.x = f[i+0]; w0.y = f[i+1]; w0.z = f[i+2];
             i += 3;
             lv_vg_3d_translate(dst, w0);
             break;
         case lv_cmd_3d_rotate:
-            w0 = (vec3f){ f[i+0], f[i+1], f[i+2] };
+            w0.x = f[i+0]; w0.y = f[i+1]; w0.z = f[i+2];
             f0 = f[i+3];
             i += 4;
             lv_vg_3d_rotate(dst, w0, f0);
             break;
         case lv_cmd_3d_scale:
-            w0 = (vec3f){ f[i+0], f[i+1], f[i+2] };
+            w0.x = f[i+0]; w0.y = f[i+1]; w0.z = f[i+2];
             i += 3;
             lv_vg_3d_scale(dst, w0);
             break;
         case lv_cmd_3d_move_to:
-            w0 = (vec3f){ f[i+0], f[i+1], f[i+2] };
+            w0.x = f[i+0]; w0.y = f[i+1]; w0.z = f[i+2];
             i += 3;
             lv_vg_3d_move_to(dst, w0);
             break;
         case lv_cmd_3d_line_to:
-            w0 = (vec3f){ f[i+0], f[i+1], f[i+2] };
+            w0.x = f[i+0]; w0.y = f[i+1]; w0.z = f[i+2];
             i += 3;
             lv_vg_3d_line_to(dst, w0);
             break;
         case lv_cmd_3d_quadratic_to:
-            w0 = (vec3f){ f[i+0], f[i+1], f[i+2] };
-            w1 = (vec3f){ f[i+3], f[i+4], f[i+5] };
+            w0.x = f[i+0]; w0.y = f[i+1]; w0.z = f[i+2];
+            w1.x = f[i+3]; w1.y = f[i+4]; w1.z = f[i+5];
             i += 6;
             lv_vg_3d_quadratic_to(dst, w0, w1);
             break;
         case lv_cmd_3d_bezier_to:
-            w0 = (vec3f){ f[i+0], f[i+1], f[i+2] };
-            w1 = (vec3f){ f[i+3], f[i+4], f[i+5] };
-            w2 = (vec3f){ f[i+6], f[i+7], f[i+8] };
+            w0.x = f[i+0]; w0.y = f[i+1]; w0.z = f[i+2];
+            w1.x = f[i+3]; w1.y = f[i+4]; w1.z = f[i+5];
+            w2.x = f[i+6]; w2.y = f[i+7]; w2.z = f[i+8];
             i += 9;
             lv_vg_3d_bezier_to(dst, w0, w1, w2);
             break;
         }
     }
 }
+
+#ifdef __cplusplus
+}
+#endif
