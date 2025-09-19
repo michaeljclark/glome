@@ -59,7 +59,7 @@ if (EXTERNAL_GLFW)
     ExternalProject_Add(
         GLFW
         GIT_REPOSITORY "https://github.com/glfw/glfw.git"
-        GIT_TAG "3.3-stable"
+        GIT_TAG "latest"
         SOURCE_DIR "${CMAKE_BINARY_DIR}/third_party/glfw3"
         STEP_TARGETS build
         EXCLUDE_FROM_ALL TRUE
@@ -72,11 +72,6 @@ if (EXTERNAL_GLFW)
     include_directories(${GLFW_INCLUDE_DIRS})
     link_directories(${GLFW_LIBRARY_DIR})
     list(APPEND GLFW_LIBS_ALL ${GLFW_LIBRARIES} ${EXTRA_LIBS})
-    if(UNIX AND NOT APPLE)
-        find_package(X11 REQUIRED)
-        list(APPEND GLFW_LIBS_ALL X11::X11)
-        include_directories(${X11_INCLUDE_DIR})
-    endif()
 else ()
     add_definitions(${GLFW3_CFLAGS})
     list(APPEND GLFW_LIBS_ALL glfw ${EXTRA_LIBS})
