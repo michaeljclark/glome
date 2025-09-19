@@ -34,7 +34,6 @@ option(EXTERNAL_GLAD "Use external GLAD project" ON)
 option(ENABLE_ASAN "Enable ASAN" OFF)
 option(ENABLE_MSAN "Enable MSAN" OFF)
 option(ENABLE_UBSAN "Enable UBSAN" OFF)
-option(NANOVG_DEMO "Build nanovg demo" OFF)
 
 if(ENABLE_ASAN)
   add_compiler_flag(-fsanitize=address)
@@ -127,19 +126,15 @@ endmacro()
 #
 
 include_directories(include)
-include_directories(third_party/stb)
-include_directories(third_party/nanovg)
 include_directories(${FT2_INCLUDE_DIRS})
 
-set(NVG third_party/nanovg)
-set(NVG_SOURCE ${NVG}/nanovg.c ${NVG}/nanovg_perf.c)
+include_directories(third_party/nanovg/src)
+add_library(nanovg STATIC third_party/nanovg/src/nanovg.c)
+list(APPEND GLFW_LIBS_ALL nanovg)
+
+include_directories(third_party/stb)
 
 foreach(prog IN ITEMS glome)
-  add_executable(${prog} ${NVG_SOURCE} src/${prog}.c)
+  add_executable(${prog} src/${prog}.c)
   gl_cprogram(${prog})
 endforeach()
-
-if(NANOVG_DEMO)
-add_executable(nanovg_demo ${NVG_SOURCE} ${NVG}/nanovg_demo.c)
-gl_cprogram(nanovg_demo)
-endif()
