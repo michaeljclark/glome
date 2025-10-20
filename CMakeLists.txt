@@ -99,10 +99,18 @@ else ()
     list(APPEND GLFW_LIBS_ALL ${OPENGL_opengl_LIBRARY})
 endif ()
 
-# Find FreeType2 library
+# freetype
 find_package(Freetype REQUIRED)
 list(APPEND GLFW_LIBS_ALL Freetype::Freetype)
 include_directories(${FREETYPE_INCLUDE_DIRS})
+
+# nanovg
+include_directories(third_party/nanovg/src)
+add_library(nanovg STATIC third_party/nanovg/src/nanovg.c)
+list(APPEND GLFW_LIBS_ALL nanovg)
+
+# stb
+include_directories(third_party/stb)
 
 # macro to add opengl example
 macro(gl_cprogram prog)
@@ -123,13 +131,6 @@ endmacro()
 #
 
 include_directories(include)
-include_directories(${FT2_INCLUDE_DIRS})
-
-include_directories(third_party/nanovg/src)
-add_library(nanovg STATIC third_party/nanovg/src/nanovg.c)
-list(APPEND GLFW_LIBS_ALL nanovg)
-
-include_directories(third_party/stb)
 
 foreach(prog IN ITEMS glome)
   add_executable(${prog} src/${prog}.c)
