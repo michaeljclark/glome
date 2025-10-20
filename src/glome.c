@@ -49,9 +49,7 @@
 #include "stb_image_write.h"
 
 #include "linmath.h"
-
-#include "lv_color.h"
-#include "lv_opengl.h"
+#include "gl2_nano.h"
 #include "lv_vg.h"
 
 typedef struct glome_app glome_app;
