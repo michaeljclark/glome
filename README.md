@@ -12,6 +12,6 @@ to transform 3D coordinates to 2D coordinates with perspective.
 ## Build Instructions
 
 ```
-cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo
+cmake -B build -G Ninja
 cmake --build build
 ```
