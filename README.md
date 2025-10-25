@@ -7,7 +7,7 @@ canvas API. it adds a new set of 3D canvas rendering commands and a
 transformation stack using 4D matrices with homogenous coordinates
 to transform 3D coordinates to 2D coordinates with perspective.
 
-![glome](/images/glome.png)
+![glome](/images/glome.gif)
 
 ## Build Instructions
 
